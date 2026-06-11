@@ -157,8 +157,7 @@ Clique em **"Usar exemplo"** na interface ou insira manualmente:
 ```
 lucromax/
 ├── app.py                 # Flask + lógica de otimização (SymPy)
-├── frontend/
-│   └── static/
+├── static/
 │       ├── css/style.css  # Estilo da interface
 │       └── js/main.js     # Lógica do front end
 ├── templates/
@@ -167,21 +166,13 @@ lucromax/
 └── README.md
 ```
 
----
-
-## 🤖 Uso de IA
-
-Este projeto utilizou o assistente Claude (Anthropic) como suporte para: geração de estrutura inicial de código, revisão de expressões matemáticas em SymPy e formatação do README. Todo o conteúdo foi revisado, adaptado e validado pela equipe. O modelo matemático e as interpretações são de autoria própria.
-
----
 
 ## 👥 Equipe
 
 | Nome | Matrícula |
 |------|-----------|
-| [Nome 1] | [Matrícula] |
-| [Nome 2] | [Matrícula] |
-| [Nome 3] | [Matrícula] |
+| Carlos Teixeira | [Matrícula] |
+
 
 ---
 
