@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>LucroMax — Otimizador de Produção</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fira+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-mark">▲</span>
+        <span class="logo-text">LucroMax</span>
+      </div>
+      <p class="header-sub">Otimização de Lucro com Dois Produtos</p>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <h1 class="hero-title">Qual combinação de produtos<br/><em>maximiza seu lucro?</em></h1>
+      <p class="hero-desc">
+        Informe os preços, custos e interações entre seus produtos.<br/>
+        O sistema encontra o ponto ótimo usando cálculo multivariável — sem você precisar saber matemática.
+      </p>
+    </div>
+  </section>
+
+  <main class="main">
+    <div class="card form-card">
+      <div class="card-label">Parâmetros do modelo</div>
+
+      <div class="form-section">
+        <h3 class="form-section-title">Receita</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="px">Preço unitário — Produto A (R$)</label>
+            <input type="number" id="px" placeholder="ex: 120" step="any" min="0"/>
+            <span class="hint">Quanto você recebe por unidade de A</span>
+          </div>
+          <div class="form-group">
+            <label for="py">Preço unitário — Produto B (R$)</label>
+            <input type="number" id="py" placeholder="ex: 90" step="any" min="0"/>
+            <span class="hint">Quanto você recebe por unidade de B</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="form-section-title">Custos</h3>
+        <div class="form-row three">
+          <div class="form-group">
+            <label for="a">Custo marginal de A (a)</label>
+            <input type="number" id="a" placeholder="ex: 2" step="any" min="0.01"/>
+            <span class="hint">Custo que cresce com a quantidade de A (ex: desgaste, horas-extra)</span>
+          </div>
+          <div class="form-group">
+            <label for="b">Interação A·B (b)</label>
+            <input type="number" id="b" placeholder="ex: 1" step="any"/>
+            <span class="hint">Quanto produzir A afeta o custo de B (concorrência interna)</span>
+          </div>
+          <div class="form-group">
+            <label for="c">Custo marginal de B (c)</label>
+            <input type="number" id="c" placeholder="ex: 3" step="any" min="0.01"/>
+            <span class="hint">Custo que cresce com a quantidade de B</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-calc" id="btnCalc" onclick="calcular()">
+          <span id="btnText">Calcular ponto ótimo</span>
+          <span id="btnSpinner" class="spinner hidden"></span>
+        </button>
+        <button class="btn-example" onclick="preencherExemplo()">Usar exemplo</button>
+      </div>
+
+      <div id="erroBox" class="erro-box hidden"></div>
+    </div>
+
+    <div id="resultado" class="resultado hidden">
+      <div class="card result-hero">
+        <div class="result-hero-inner">
+          <div class="result-block">
+            <span class="result-label">Produto A</span>
+            <span class="result-value" id="resX">—</span>
+            <span class="result-unit">unidades</span>
+          </div>
+          <div class="result-plus">+</div>
+          <div class="result-block">
+            <span class="result-label">Produto B</span>
+            <span class="result-value" id="resY">—</span>
+            <span class="result-unit">unidades</span>
+          </div>
+          <div class="result-equals">=</div>
+          <div class="result-block result-highlight">
+            <span class="result-label">Lucro máximo</span>
+            <span class="result-value" id="resL">—</span>
+            <span class="result-unit">R$</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-cols">
+        <div class="card math-card">
+          <div class="card-label">Como a solução foi obtida</div>
+
+          <div class="math-step">
+            <span class="step-num">1</span>
+            <div>
+              <strong>Função objetivo</strong>
+              <code id="resFuncao">—</code>
+            </div>
+          </div>
+
+          <div class="math-step">
+            <span class="step-num">2</span>
+            <div>
+              <strong>Derivadas parciais</strong>
+              <code>∂L/∂x = <span id="resDx">—</span></code>
+              <code>∂L/∂y = <span id="resDy">—</span></code>
+              <code id="resGradiente">∇L(x*, y*) = (—, —)</code>
+            </div>
+          </div>
+
+          <div class="math-step">
+            <span class="step-num">3</span>
+            <div>
+              <strong>Ponto crítico (∇L = 0)</strong>
+              <code>x* = <span id="resPx">—</span>, &nbsp;y* = <span id="resPy">—</span></code>
+            </div>
+          </div>
+
+          <div class="math-step">
+            <span class="step-num">4</span>
+            <div>
+              <strong>Hessiana</strong>
+              <div class="hessiana-grid">
+                <div class="hess-cell" id="hess11">—</div>
+                <div class="hess-cell" id="hess12">—</div>
+                <div class="hess-cell" id="hess21">—</div>
+                <div class="hess-cell" id="hess22">—</div>
+              </div>
+              <code>det(H) = <span id="detH">—</span></code>
+            </div>
+          </div>
+
+          <div class="math-step">
+            <span class="step-num">5</span>
+            <div>
+              <strong>Classificação</strong>
+              <span class="badge" id="classificacao">—</span>
+              <p id="interpretacao" class="interpretacao-text"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card sens-card">
+          <div class="card-label">Análise de sensibilidade</div>
+          <p class="sens-desc">O que acontece com o lucro se os preços variarem ±10%?</p>
+          <div class="sens-table-wrap">
+            <table class="sens-table" id="sensTable">
+              <thead>
+                <tr>
+                  <th>Variação nos preços</th>
+                  <th>Produto A (x)</th>
+                  <th>Produto B (y)</th>
+                  <th>Lucro (R$)</th>
+                </tr>
+              </thead>
+              <tbody id="sensBody"></tbody>
+            </table>
+          </div>
+
+          <div class="chart-wrap">
+            <canvas id="chartSens" height="160"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card rec-card">
+        <div class="card-label">Recomendação para a gestora</div>
+        <p id="recTexto" class="rec-texto"></p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>LucroMax · Projeto PBL — Resolução de Problemas Multivariáveis · Centro Universitário do Pará</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
